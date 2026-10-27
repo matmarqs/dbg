@@ -2,5 +2,5 @@
 #include <libdbg/libdbg.h>
 
 void say_hello() {
-    puts("Hello, dbg!\n");
+    printf("Hello, dbg!\n");
 }

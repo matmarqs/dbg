@@ -1,15 +1,14 @@
-.PHONY: all clean
-
-LIBDBG_A := build/libdbg.a
-TARGETS := $(LIBDBG_A)
-
 MAKEFLAGS += -j$(shell nproc)
 
-SRC_DIRS := ./src
-BUILD_DIR := ./build
+BUILD_DIR := build
+EXECUTABLE := $(BUILD_DIR)/dbg
+LIBDBG := $(BUILD_DIR)/libdbg.a
+TESTS := $(BUILD_DIR)/tests
 
-SRCS := $(shell find $(SRC_DIRS) -name '*.c')
-OBJS := $(SRCS:./%.c=$(BUILD_DIR)/%.o)
+SRCS := $(shell find ./src -name '*.c')
+SRCS_OBJ := $(SRCS:./%.c=$(BUILD_DIR)/%.o)
+EXEC_OBJ := $(BUILD_DIR)/tools/dbg.o
+TESTS_OBJ := $(BUILD_DIR)/test/tests.o
 
 AR := ar
 CC := gcc
@@ -18,14 +17,25 @@ CFLAGS := -Wall -Wextra -std=c99 -ggdb
 CPPFLAGS := -MMD -MP -Iinclude
 LDFLAGS :=
 
-all: $(TARGETS)
+.PHONY: all clean test
 
-$(LIBDBG_A): $(OBJS)
+all: $(EXECUTABLE) $(LIBDBG) test
+
+$(EXECUTABLE): $(EXEC_OBJ) $(LIBDBG)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+$(TESTS): $(TESTS_OBJ) $(LIBDBG)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+$(LIBDBG): $(SRCS_OBJ)
 	$(AR) rcs $@ $^
 
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+test: $(TESTS)
+	$(TESTS)
 
 clean:
 	rm -rf $(BUILD_DIR)
