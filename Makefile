@@ -15,7 +15,7 @@ CC := gcc
 
 CFLAGS := -Wall -Wextra -std=c99 -ggdb
 CPPFLAGS := -MMD -MP -Iinclude
-LDFLAGS :=
+LDFLAGS := -ledit
 
 .PHONY: all clean test
 
@@ -34,7 +34,7 @@ $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-test: $(TESTS)
+test: $(TESTS) $(EXECUTABLE)
 	$(TESTS)
 
 clean:
