@@ -14,7 +14,7 @@ AR := ar
 CC := gcc
 
 CFLAGS := -Wall -Wextra -std=c99 -ggdb
-CPPFLAGS := -MMD -MP -Iinclude
+CPPFLAGS := -MMD -MP -Iinclude -Isrc/include
 LDFLAGS := -ledit
 
 .PHONY: all clean test

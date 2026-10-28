@@ -1,3 +1,4 @@
+#include "str_view.h"
 #include <libdbg/libdbg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,9 +6,10 @@
 #include <editline/readline.h>
 #include <string.h>
 
-#define UNUSED(x) (void)(x)
-
 void handle_command(pid_t pid, const char *line) {
+    /* max 8 arguments for now */
+    str_view_t args[MAX_COMMAND_ARGS] = { 0 };
+    str_view_t command = str_view_from_cstr(line);
     UNUSED(pid);
     UNUSED(line);
     return;
@@ -30,22 +32,22 @@ int main(int argc, const char **argv) {
 
     char *line = NULL;
     while ((line = readline("dbg> ")) != NULL) {
-        char *line_str;
+        char *line_c_str = "";
         if (strncmp(line, "", 0) == 0) {
             free(line);
             if (history_length > 0) {
-                line_str = (char *) history_list()[history_length - 1]->line;
+                line_c_str = (char *) history_list()[history_length - 1]->line;
             }
         }
         else {
-            line_str = line;
+            line_c_str = line;
             add_history(line);
             free(line);
         }
 
-        if (line_str[0] != '\0') {
+        if (line_c_str[0] != '\0') {
             /* line_str is not empty string */
-            handle_command(pid, line_str);
+            handle_command(pid, line_c_str);
         }
     }
 
