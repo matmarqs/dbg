@@ -74,31 +74,31 @@ int split_by_whitespace(str_view_t view, str_view_t args[MAX_COMMAND_ARGS]) {
     }
 
     /* we are guaranteed by trim_by_whitespace that
-     * the first character is non-whitespace*/
+     * the first character is non-whitespace */
     int start = 0, a = 0;
-    while (a < MAX_COMMAND_ARGS) {
-        bool done = false;
-        int j = start;
-        while (!done) {
-            if (!isspace(str[j])) {
-                j++;
-            }
-            else if (str[j] == '\0') {
-                args[a].str = str + start;
-                args[a].len = j - start;
+    int j = start;
+    while (true) {
+        if (!isspace(str[j])) {
+            j++;
+        }
+        else if (j >= len || str[j] == '\0') {
+            args[a].str = str + start;
+            args[a].len = j - start;
+            a++;
+            return a;
+        }
+        else {
+            /* j is whitespace, but not the last null character*/
+            args[a].str = str + start;
+            args[a].len = j - start;
+            a++;
+            if (a >= MAX_COMMAND_ARGS)
                 return a;
+            start = j;
+            while (isspace(str[start])) {
+                start++;
             }
-            else {
-                /* j is whitespace, but not the last null character*/
-                args[a].str = str + start;
-                args[a].len = j - start;
-                a++;
-                start = j;
-                while (isspace(start)) {
-                    start++;
-                }
-                continue;
-            }
+            j = start;
         }
     }
 

@@ -38,8 +38,44 @@ bool test_trim_by_ws() {
     return true;
 }
 
+bool test_split_by_ws() {
+    str_view_t s = str_view_from_cstr("  \n  Hello\n \t just \r a \n\ftest   here  \t   ");
+    str_view_t expected[MAX_COMMAND_ARGS] = {
+        str_view_from_cstr("Hello"),
+        str_view_from_cstr("just"),
+        str_view_from_cstr("a"),
+        str_view_from_cstr("test"),
+        str_view_from_cstr("here"),
+    };
+    str_view_t result[MAX_COMMAND_ARGS] = { 0 };
+    int num_args = split_by_whitespace(s, result);
+    if (num_args != 5)
+        return false;
+    for (int i = 0; i < num_args; i++) {
+        if (str_view_cmp(result[i], expected[i]) != 0)
+            return false;
+    }
+
+    s = str_view_from_cstr("  \n  break \nset\t *0x8888  \t   ");
+    str_view_t expected_2[MAX_COMMAND_ARGS] = {
+        str_view_from_cstr("break"),
+        str_view_from_cstr("set"),
+        str_view_from_cstr("*0x8888"),
+    };
+    num_args = split_by_whitespace(s, result);
+    if (num_args != 3)
+        return false;
+    for (int i = 0; i < num_args; i++) {
+        if (str_view_cmp(result[i], expected_2[i]) != 0)
+            return false;
+    }
+
+    return true;
+}
+
 test_t tests[] = {
     REGISTER_TEST(test_trim_by_ws),
+    REGISTER_TEST(test_split_by_ws),
 };
 
 /* END TESTS */
