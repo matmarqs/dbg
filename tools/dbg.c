@@ -1,3 +1,4 @@
+#include "libdbg/process.h"
 #include "str_view.h"
 #include <libdbg/libdbg.h>
 #include <stdio.h>
@@ -6,15 +7,15 @@
 #include <editline/readline.h>
 #include <string.h>
 
-void handle_command(pid_t pid, char *line) {
+void handle_command(process_t *process, char *line) {
     str_view_t line_view = str_view_from_cstr(line);
     str_view_t args[MAX_COMMAND_ARGS];
     split_by_whitespace(line_view, args);
     str_view_t command = args[0];
 
     if (is_prefix(command, str_view_from_cstr("continue"))) {
-        resume(pid);
-        wait_on_signal(pid);
+        proc_resume(process);
+        proc_waitOnSignal(process);
     }
     else {
         fprintf(stderr, "Unknown command\n");
@@ -28,14 +29,7 @@ int main(int argc, const char **argv) {
         return -1;
     }
 
-    pid_t pid = attach(argc, argv);
-
-    int wait_status;
-    int options = 0;
-    if (waitpid(pid, &wait_status, options) < 0) {
-        perror("waitpid failed");
-        return -1;
-    }
+    process_t proc = attach(argc, argv);
 
     char *line = NULL;
     while ((line = readline("dbg> ")) != NULL) {
@@ -52,7 +46,7 @@ int main(int argc, const char **argv) {
 
         if (line_cmd[0] != '\0') {
             /* line_str is not empty string */
-            handle_command(pid, line_cmd);
+            handle_command(&proc, line_cmd);
         }
         free(line);
     }
