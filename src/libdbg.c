@@ -8,7 +8,7 @@
 
 void usage() {
     fprintf(stderr, "Usage:\n");
-    fprintf(stderr, "\tdbg executable\tLaunch the debugee\n");
+    fprintf(stderr, "\tdbg executable\t\tLaunch the debuggee\n");
     fprintf(stderr, "\tdbg -p PID\t\tAttach to process PID\n");
 }
 

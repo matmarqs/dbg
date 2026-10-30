@@ -24,7 +24,7 @@ void handle_command(pid_t pid, char *line) {
 
 int main(int argc, const char **argv) {
     if (argc == 1) {
-        fprintf(stderr, "No arguments given\n");
+        usage();
         return -1;
     }
 
@@ -39,23 +39,22 @@ int main(int argc, const char **argv) {
 
     char *line = NULL;
     while ((line = readline("dbg> ")) != NULL) {
-        char *line_c_str = "";
+        char *line_cmd = "";
         if (line[0] == '\0') {
-            free(line);
             if (history_length > 0) {
-                line_c_str = (char *) history_list()[history_length - 1]->line;
+                line_cmd = (char *) history_list()[history_length - 1]->line;
             }
         }
         else {
-            line_c_str = line;
+            line_cmd = line;
             add_history(line);
-            //free(line);
         }
 
-        if (line_c_str[0] != '\0') {
+        if (line_cmd[0] != '\0') {
             /* line_str is not empty string */
-            handle_command(pid, line_c_str);
+            handle_command(pid, line_cmd);
         }
+        free(line);
     }
 
     return 0;
