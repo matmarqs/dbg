@@ -10,7 +10,9 @@ str_view_t str_view_from_cstr(char *c_str) {
 }
 
 bool is_prefix(str_view_t view, str_view_t of) {
-    return true;
+    if (view.len > of.len)
+        return false;
+    return strncmp(view.str, of.str, view.len) == 0;
 }
 
 int str_view_cmp(str_view_t a, str_view_t b) {
@@ -78,7 +80,7 @@ int split_by_whitespace(str_view_t view, str_view_t args[MAX_COMMAND_ARGS]) {
     int start = 0, a = 0;
     int j = start;
     while (true) {
-        if (!isspace(str[j])) {
+        if (j < len && !isspace(str[j])) {
             j++;
         }
         else if (j >= len || str[j] == '\0') {

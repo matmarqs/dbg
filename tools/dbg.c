@@ -6,18 +6,25 @@
 #include <editline/readline.h>
 #include <string.h>
 
-void handle_command(pid_t pid, const char *line) {
-    /* max 8 arguments for now */
-    str_view_t args[MAX_COMMAND_ARGS] = { 0 };
-    str_view_t command = str_view_from_cstr(line);
-    UNUSED(pid);
-    UNUSED(line);
+void handle_command(pid_t pid, char *line) {
+    str_view_t line_view = str_view_from_cstr(line);
+    str_view_t args[MAX_COMMAND_ARGS];
+    split_by_whitespace(line_view, args);
+    str_view_t command = args[0];
+
+    if (is_prefix(command, str_view_from_cstr("continue"))) {
+        resume(pid);
+        wait_on_signal(pid);
+    }
+    else {
+        fprintf(stderr, "Unknown command\n");
+    }
     return;
 }
 
 int main(int argc, const char **argv) {
     if (argc == 1) {
-        fputs("No arguments given", stderr);
+        fprintf(stderr, "No arguments given\n");
         return -1;
     }
 
@@ -33,7 +40,7 @@ int main(int argc, const char **argv) {
     char *line = NULL;
     while ((line = readline("dbg> ")) != NULL) {
         char *line_c_str = "";
-        if (strncmp(line, "", 0) == 0) {
+        if (line[0] == '\0') {
             free(line);
             if (history_length > 0) {
                 line_c_str = (char *) history_list()[history_length - 1]->line;
@@ -42,7 +49,7 @@ int main(int argc, const char **argv) {
         else {
             line_c_str = line;
             add_history(line);
-            free(line);
+            //free(line);
         }
 
         if (line_c_str[0] != '\0') {

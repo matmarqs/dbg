@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <libdbg/libdbg.h>
 #include <sys/ptrace.h>
+#include <sys/wait.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -9,6 +10,22 @@ void usage() {
     fprintf(stderr, "Usage:\n");
     fprintf(stderr, "\tdbg executable\tLaunch the debugee\n");
     fprintf(stderr, "\tdbg -p PID\t\tAttach to process PID\n");
+}
+
+void resume(pid_t pid) {
+    if (ptrace(PTRACE_CONT, pid, NULL, NULL) < 0) {
+        perror("Couldn't continue");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void wait_on_signal(pid_t pid) {
+    int wait_status;
+    int options = 0;
+    if (waitpid(pid, &wait_status, options) < 0) {
+        perror("waitpid failed");
+        exit(EXIT_FAILURE);
+    }
 }
 
 pid_t attach(int argc, const char **argv) {

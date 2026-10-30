@@ -47,7 +47,7 @@ bool test_split_by_ws() {
         str_view_from_cstr("test"),
         str_view_from_cstr("here"),
     };
-    str_view_t result[MAX_COMMAND_ARGS] = { 0 };
+    str_view_t result[MAX_COMMAND_ARGS];
     int num_args = split_by_whitespace(s, result);
     if (num_args != 5)
         return false;
@@ -70,12 +70,37 @@ bool test_split_by_ws() {
             return false;
     }
 
+    s = str_view_from_cstr("cont");
+    str_view_t expected_3[MAX_COMMAND_ARGS] = {
+        str_view_from_cstr("cont"),
+    };
+    num_args = split_by_whitespace(s, result);
+    if (num_args != 1)
+        return false;
+    for (int i = 0; i < num_args; i++) {
+        if (str_view_cmp(result[i], expected_3[i]) != 0)
+            return false;
+    }
+
+    return true;
+}
+
+bool test_is_prefix() {
+    if (is_prefix(str_view_from_cstr("c"), str_view_from_cstr("continue")) != true)
+        return false;
+    if (is_prefix(str_view_from_cstr("cont"), str_view_from_cstr("continue")) != true)
+        return false;
+    if (is_prefix(str_view_from_cstr("continue"), str_view_from_cstr("continue")) != true)
+        return false;
+    if (is_prefix(str_view_from_cstr("continuee"), str_view_from_cstr("continue")) != false)
+        return false;
     return true;
 }
 
 test_t tests[] = {
     REGISTER_TEST(test_trim_by_ws),
     REGISTER_TEST(test_split_by_ws),
+    REGISTER_TEST(test_is_prefix),
 };
 
 /* END TESTS */
